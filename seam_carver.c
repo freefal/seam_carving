@@ -214,11 +214,9 @@ int main (int argc, char *argv[]) {
 
   for (i = 0; i < cols_to_rem; i++) {
     unsigned char *new_data = remove_seam(old_data, x-i, y);
-    printf("%d\n", i);
     free(old_data);
     old_data = new_data;
   }
-  printf ("%d, %d, %d\n", x, y, n);
 
   stbi_write_jpg(argv[2], x - cols_to_rem, y, n, old_data, 100);
 
