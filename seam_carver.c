@@ -6,23 +6,6 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-unsigned char red (unsigned char *p) {
-  return *p;
-}
-
-unsigned char green (unsigned char *p) {
-  return *(p+1);
-}
-
-unsigned char blue (unsigned char *p) {
-  return *(p+2);
-}
-
-double distance (unsigned char *p1, unsigned char *p2) {
-  double d2 = pow(red(p1) - red(p2), 2) + pow(green(p1) - green(p2), 2) + pow(blue(p1) - blue(p2), 2);
-  return sqrt(d2);
-}
-
 double* compute_pixel_energies(unsigned char *data, int x, int y) {
   double *energies = malloc (x * y * sizeof(double));
   int i, j;
@@ -44,10 +27,10 @@ double* compute_pixel_energies(unsigned char *data, int x, int y) {
         right = p;
       }
 
-      int r = red(left) - red(right);
-      int g = green(left) - green(right);
-      int b = blue(left) - blue(right);
-      double x_energy = pow(r, 2) + pow(g, 2) + pow(b, 2);
+      int r = left[0] - right[0];
+      int g = left[1] - right[1];
+      int b = left[2] - right[2];
+      double x_energy = r*r + g*g + b*b; 
       
       unsigned char *up, *down;
 
@@ -66,10 +49,10 @@ double* compute_pixel_energies(unsigned char *data, int x, int y) {
         down = p;
       }
      
-      r = red(up) - red(down);
-      g = green(up) - green(down);
-      b = blue(up) - blue(down);
-      double y_energy = pow(r, 2) + pow(g, 2) + pow(b, 2);
+      r = up[0] - down[0];
+      g = up[1] - down[1];
+      b = up[2] - down[2];
+      double y_energy = r*r + g*g + b*b;
       
       double energy = sqrt(x_energy + y_energy);
       *(energies + i*x + j) = energy;
@@ -156,15 +139,8 @@ int* find_seam (unsigned char *data, int x, int y) {
 unsigned char* remove_seam (unsigned char *data, int x, int y) {
   int *seam = find_seam(data, x, y);
 
-  int i;
-  for(i = 0; i < y; i++) {
-    data[(i*x + seam[i])*3] = 255;
-    data[(i*x + seam[i])*3 + 1] = 0;
-    data[(i*x + seam[i])*3 + 2] = 0;
-  }
-
   unsigned char *new_data = malloc((x-1)*y*3*sizeof(unsigned char));
-  int j;
+  int i, j;
   for (i = 0; i < y; i++) {
     for (j = 0; j < x-1; j++) {
       unsigned char r, g, b;
